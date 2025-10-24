@@ -114,6 +114,9 @@ exactly once you do it a hundred times each on different sized boards.</p>
     <li><code>r</code> for right</li>
 </ul>
 <p>
+    If you output anything else it is counted as you surrendering.
+</p>
+<p>
     <b>IMPORTANT:</b> you always have to send a direction also if you do not steer. And you always have to print a newline (<code>"\n"</code>)
     afterward. (Note that using <code>print</code> in python does this automatically).
 </p>
@@ -127,116 +130,117 @@ exactly once you do it a hundred times each on different sized boards.</p>
 
 <h2>Example Code</h2>
 <h3>Python</h3>
-The following python code collaborates with all other prisoners:
-<pre><code># reading number of prisoners (n) and the own assigned number (k)
-n, k = map(int, input().split())
+The following python code just runs around the outer edge (clockwise):
+<pre><code># reading the width and the height
+w, h = map(int, input().split())
+# declaring the board variable (a w by h matrix)
+board = [[0 for x in range(w)] for y in range(h)]
 
-# repeating for every round
-while (True):
-    # printing all numbers 1 to n-1 without the own number k
-    # to indicate one is collaborating with all other prisoners
-    print(" ".join(map(str,set(range(n)).difference({k}))))
-    # reading the n lists who collaborated with whom
-    for i in range(n):
-        # reading the line of the list of lists
-        line_numbers = list(map(int, input().split()))
-        # splitting the read numbers in l the count of prisoners the i-th
-        # prisoner collaborated with and collabs the numbers of the prisoners
-        # the i-th prisoner collaborated with
-        l, collabs = line_numbers[0], line_numbers[1:]
-        # ignoring the read information
-</code></pre>
-The following python code collaborates with no one:
-<pre><code># reading number of prisoners (n) and the own assigned number (k)
-n, k = map(int, input().split())
+def read_board():
+    # accessing the global variable board
+    global board
+    # iterating over all lines of the input
+    for i in range(h):
+        # saving the lines as lists of integers
+        board[i] = list(map(int, input().split()))
 
-# repeating for every round
-while (True):
-    # printing an empty line (standing for collaborating with no one)
-    print("")
-    # reading the n lists who collaborated with whom
-    for i in range(n):
-        # reading the line of the list of lists
-        line_numbers = list(map(int, input().split()))
-        # splitting the read numbers in l the count of prisoners the i-th
-        # prisoner collaborated with and collabs the numbers of the prisoners
-        # the i-th prisoner collaborated with
-        l, collabs = line_numbers[0], line_numbers[1:]
-        # ignoring the read information
+# reading the initial board position
+read_board()
+while True:
+    # going from the top left corner to the top right one
+    for _ in range(w - 1):
+        print("r")
+        # each turn reading the new board position
+        read_board()
+    # going from the top right corner to the bottom right one
+    for _ in range(h-1):
+        print("d")
+        # each turn reading the new board position
+        read_board()
+    # going from the bottom right corner to the bottom left one
+    for _ in range(w-1):
+        print("l")
+        # each turn reading the new board position
+        read_board()
+    # going from the bottom left corner to the top left one
+    for _ in range(h-1):
+        print("u")
+        # each turn reading the new board position
+        read_board()
 </code></pre>
 <h3>C++</h3>
-The following C++ code collaborates with all other prisoners:
-<pre><code>#include &lt;iostream&gt;
+The following C++ code just runs around the outer edge (clockwise):
+<pre><code>#include&lt;iostream>
+
+// helper class accessing an array which contains the data of the board
+class Board{
+  int w;
+  int h;
+  int* board;
+
+  public:
+  Board(int width, int height){
+    w = width;
+    h = height;
+    board = new int[w*h];
+  }
+
+  //acess to the array at point (x,y)
+  inline int& get(int x, int y){
+    // in the array the data is stored one row after another so to specify the row you
+    // have to go y multiples of the row length forwards to go in the y-th row
+    return board[x + y*w];
+  }
+
+  // method to read the input
+  void read(){
+    // iterating over the w*h entries and saving them in the array
+    for (int i = 0; i < w*h; i++) {
+      std::cin >> board[i];
+    }
+  }
+};
+
 
 int main(){
-    // reading number of prisoners (n) and the own assigned number (k)
-    int n, k;
-    std::cin >> n >> k;
+  // reading the width and the height
+  int w, h;
+  std::cin >> w >> h;
 
-    // repeating for every round
-    while(true){
-        // iterating over all n prisoners
-        for (int i = 0; i < n;i++){
-            // if not oneself printing i to indicate that one is collaborating
-            // with the i-th prisoner
-            if (n!=k)
-                std::cout << i << " ";
-        }
-        // printing end of line ("\n") to indicate the end of the list
-        std::cout << std::endl;
-        // reading for each prisoner with whom they collaborated
-        for (int i = 0; i < n;i++){
-            // reading the count l of prisoners the i-th prisoner
-            // collaborated with
-            int l;
-            std::cin >> l;
-            // reading all l prisoners the i-th prisoner collaborated with
-            for (int j = 0; j < l; j++){
-                // reading the number c of one the l prisoners the i-th
-                // prisoner collaborated with
-                int c;
-                std::cin >> c;
-                // ignoring the read information
-            }
-        }
+  // declaring the board variable which saves the information of the current game state
+  Board board(w, h);
+
+  // reading the initial board position
+  board.read();
+
+  while (true) {
+    // going from the top left corner to the top right one
+    for (int i = 0; i < w-1; i++) {
+      std::cout << "r" << std::endl;
+      // each turn reading the new board position
+      board.read();
     }
-}</code></pre>
-The following C++ code collaborates with no one:
-<pre><code>#include &lt;iostream&gt;
-
-int main(){
-    // reading number of prisoners (n) and the own assigned number (k)
-    int n, k;
-    std::cin >> n >> k;
-
-    // repeating for every round
-    while(true){
-        // iterating over all n prisoners
-        for (int i = 0; i < n;i++){
-            // if not oneself printing i to indicate that one is collaborating
-            // with the i-th prisoner
-            if (n!=k)
-                std::cout << i << " ";
-        }
-        // printing end of line ("\n") to indicate the end of the list
-        std::cout << std::endl;
-        // reading for each prisoner with whom they collaborated
-        for (int i = 0; i < n;i++){
-            // reading the count l of prisoners the i-th prisoner
-            // collaborated with
-            int l;
-            std::cin >> l;
-            // reading all l prisoners the i-th prisoner collaborated with
-            for (int j = 0; j < l; j++){
-                // reading the number c of one the l prisoners the i-th
-                // prisoner collaborated with
-                int c;
-                std::cin >> c;
-                // ignoring the read information
-            }
-        }
+    // going from the top right corner to the bottom right one
+    for (int i = 0; i < h-1; i++) {
+      std::cout << "d" << std::endl;
+      // each turn reading the new board position
+      board.read();
     }
-}</code></pre>
+    // going from the bottom right corner to the bottom left one
+    for (int i = 0; i < w-1; i++) {
+      std::cout << "l" << std::endl;
+      // each turn reading the new board position
+      board.read();
+    }
+    // going from the bottom left corner to the top left one
+    for (int i = 0; i < h-1; i++) {
+      std::cout << "u" << std::endl;
+      // each turn reading the new board position
+      board.read();
+    }
+  }
+}
+</code></pre>
 
 <h2>
     How to submit a program
