@@ -168,6 +168,61 @@ while True:
         # each turn reading the new board position
         read_board()
 </code></pre>
+This python code chooses random were its snake goes but it never runs in a snake body part or in a wall if it could be avoided:
+<pre><code>from random import choice
+
+# reading the width and the height
+w, h = map(int, input().split())
+# declaring the board variable (a w by h matrix)
+board = [[0 for _ in range(w)] for _ in range(h)]
+
+def read_board():
+    # accessing the global variable board
+    global board
+    # iterating over all lines of the input
+    for i in range(h):
+        # saving the lines as lists of integers
+        board[i] = list(map(int, input().split()))
+
+# function to get the coordinates of the head of the snake this program controls
+def find_head():
+    global board
+    # iterating over all fields on the board
+    for i in range(h):
+        for j in range(w):
+            # returning the cords if the head was found
+            if board[i][j] == 1:
+                return j, i
+
+# repeating forever (until the program gets terminated)
+while True:
+    # reading the current state of the board
+    read_board()
+
+    # getting heads position
+    x, y = find_head()
+    # checking for each direction if it works
+    possibilities = []
+    # checking if there is a field to the left and that it's either empty or an apple
+    if 0 < x and board[y][x - 1] <= 0:
+        possibilities.append("l")
+    # checking if there is a field to the right and that it's either empty or an apple
+    if x + 1 < w and board[y][x + 1] <= 0:
+        possibilities.append("r")
+    # checking if there is a field to the top and that it's either empty or an apple
+    if 0 < y and board[y - 1][x] <= 0:
+        possibilities.append("u")
+    # checking if there is a field to the bottom and that it's either empty or an apple
+    if y + 1 < h and board[y + 1][x] <= 0:
+        possibilities.append("d")
+
+    # if it's not possible to survive go completely random. meaning everything is possible again
+    if not possibilities:
+        possibilities = ["l", "r", "u", "d"]
+
+    # taking one of those possibilities
+    print(choice(possibilities))
+</code></pre>
 <h3>C++</h3>
 The following C++ code just runs around the outer edge (clockwise):
 <pre><code>#include&lt;iostream>
@@ -241,6 +296,96 @@ int main(){
   }
 }
 </code></pre>
+This python code chooses random were its snake goes but it never runs in a snake body part or in a wall if it could be avoided:
+<pre><code>#include&lt;iostream>
+#include &lt;algorithm> // for the random shuffle
+#include &lt;vector>
+
+// helper class accessing an array which contains the data of the board
+class Board{
+  int w;
+  int h;
+  int* board;
+
+  public:
+  Board(int width, int height){
+    w = width;
+    h = height;
+    board = new int[w*h];
+  }
+
+  // access to the array at point (x,y)
+  inline int& get(int x, int y){
+    // in the array the data is stored one row after another so to specify the row you
+    // have to go y multiples of the row length forwards to go in the y-th row
+    return board[x + y*w];
+  }
+
+  // function to get the coordinates of the head of the snake this program controls
+  void findHead(int& x, int& y){
+    // iterating over all fields on the board
+    for (int i = 0; i < w; i++) {
+      for (int j = 0; j < h; j++) {
+        // saving the the cords if the head was found
+        if (get(i,j) == 1){
+          x = i;
+          y = j;
+          return;
+        }
+      }
+    }
+  }
+
+  // method to read the input
+  void read(){
+    // iterating over the w*h entries and saving them in the array
+    for (int i = 0; i < w*h; i++) {
+      std::cin >> board[i];
+    }
+  }
+};
+
+
+int main(){
+  // reading the width and the height
+  int w, h;
+  std::cin >> w >> h;
+
+  // declaring the board variable which saves the information of the current game state
+  Board board(w, h);
+
+  // repeating forever (until the program gets terminated)
+  while (true) {
+    // reading the current state of the board
+    board.read();
+
+    // getting heads position
+    int x, y;
+    board.findHead(x, y);
+
+    // checking for each direction if it works
+    std::vector&lt;char> possibilities(0);
+    // checking if there is a field to the left and that it's either empty or an apple
+    if (0 < x && board.get(x - 1,y) <= 0)
+        possibilities.push_back('l');
+    // checking if there is a field to the right and that it's either empty or an apple
+    if (x + 1 < w && board.get(x + 1,y) <= 0)
+        possibilities.push_back('r');
+    // checking if there is a field to the top and that it's either empty or an apple
+    if (0 < y && board.get(x,y -1) <= 0)
+        possibilities.push_back('u');
+    // checking if there is a field to the bottom and that it's either empty or an apple
+    if (y + 1 < h and board.get(x,y + 1) <= 0)
+        possibilities.push_back('d');
+
+    // if it's not possible to survive go completely random. meaning everything is possible again
+    if (0 == possibilities.size())
+        possibilities = {'l', 'r', 'u', 'd'};
+
+    // taking one of those possibilities
+    std::cout << possibilities[std::rand()%std::ssize(possibilities)] << std::endl;
+  }
+}</code></pre>
 
 <h2>
     How to submit a program

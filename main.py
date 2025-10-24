@@ -3,7 +3,6 @@ import subprocess
 import sys
 from os import makedirs
 from random import randrange
-from types import TracebackType
 from typing import Annotated
 
 import uvicorn
@@ -141,7 +140,6 @@ class Board:
         n1x, n1y = dVSum(o1, head1cords)
         n2x, n2y = dVSum(o2, head2cords)
 
-        print("fuck it")
         e1x, e1y = end1cords
         e2x, e2y = end2cords
 
@@ -149,15 +147,12 @@ class Board:
         wc1 = not (0 <= n1x < self.w and 0 <= n1y < self.h)
         wc2 = not (0 <= n2x < self.w and 0 <= n2y < self.h)
 
-        print("das war absehbar")
         if not wc1:
             if self.b[n1y][n1x] != -1:
                 self.b[e1y][e1x] = 0
         if not wc2:
             if self.b[n2y][n2x] != -1:
                 self.b[e2y][e2x] = 0
-
-        print("test123")
 
         c1 = wc1 or (self.b[n1y][n1x] != 0 and self.b[n1y][n1x] != -1)
         c2 = wc2 or (self.b[n2y][n2x] != 0 and self.b[n2y][n2x] != -1)
@@ -208,9 +203,7 @@ def game(board: Board, p1: ProgramHandler, p2: ProgramHandler) -> (int, str):
         if o2 not in {"d","u","l","r"}:
             return 1, "Surrender"
 
-        print("test")
         end, win, reason = board.turn(o1, convert2Input(o2))
-        print("das kommt unerwartet")
 
         if end:
             return win, reason
@@ -339,12 +332,15 @@ def uploadCpp(team: Annotated[str, Form()], file: UploadFile = File(...)):
     yield "<script>pb = document.getElementById('pb')</script>"
 
     for tr in testProgram(exePath + team):
-        testSuccess, value = tr
+        testSuccess, value, warning = tr
         if testSuccess:
             yield f"<script>pb.value={value}</script>"
         else:
-            yield f"<p>Error your programm didn't pass the tests. But created this Error.<br>{value}</p><a href='/'><button>Return to start page</button></a></body></html>"
+            yield f"<p style='color:red'><b>Error<b> your programm didn't pass the tests. But created this Error:<br><code>{value}</code></p><p>Note that these tests shouldn't be a challenge but just find potential flaws in your code. Your code is tested in $100$ random games with $100$ rounds (every input your program gets, is an input that actually could occur in the game).</p>"
+            yield "<br><a href='/'><button>Return to start page</button></a></body></html>"
             return
+        if warning:
+            yield f"<p style='color:yellow'><b>WARNING:</b> {warning}</p>"
 
     yield "<p>All tests successful.<p>"
 
@@ -383,13 +379,15 @@ def uploadExe(team: Annotated[str, Form()], file: UploadFile = File(...)):
     yield "<script>pb = document.getElementById('pb')</script>"
 
     for tr in testProgram(exePath + team):
-        testSuccess, value = tr
+        testSuccess, value, warning = tr
         if testSuccess:
             yield f"<script>pb.value={value}</script>"
         else:
-            yield f"<p>Error your programm didn't pass the tests. But created this Error.<br>{value}</p>"
+            yield f"<p style='color:red'><b>Error<b> your programm didn't pass the tests. But created this Error:<br><code>{value}</code></p><p>Note that these tests shouldn't be a challenge but just find potential flaws in your code. Your code is tested in $100$ random games with $100$ rounds (every input your program gets, is an input that actually could occur in the game).</p>"
             yield "<br><a href='/'><button>Return to start page</button></a></body></html>"
             return
+        if warning:
+            yield f"<p style='color:yellow'><b>WARNING:</b> {warning}</p>"
 
     yield "<p>All tests successful.<p>"
 
